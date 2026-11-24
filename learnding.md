@@ -1,0 +1,16 @@
+Day1 :
+
+Essentially, execvp() will take up the stack and the heap with the new program that is executed.
+the fork() allows to create a new process of the same process such that we can run execvp safely after. fork() will start from the fork() call and its return value will be 0 so we can differentiate like that ex: rc = fork() rc == 0.
+
+also we have the wait() api such that the parent can wait after the child and the code remains deterministic.
+
+using pipe() we can connect the output of a process to be the input of another process
+
+learned that file descriptors are IDs that are used to map to which location stdout is. for example STDOUT_FILENO is slot 1, STDIN_FILENO is 0 STDERR_FILENO is 2. by default all 3 are open, so if we close one like STDOUT_FILENO and then we call open() creat() or dup() it will use the next avail id so it will call 1. 
+
+This is usefull because filedescriptors stay across execevp so when the program we call writes its stdout to 1 then it writes to the file.
+
+also learned that we can call wait(NULL) in the parent so that it will wait till its childs finished
+
+learned that using signal() system call allows to handle SIGINTS and other events
