@@ -14,3 +14,9 @@ This is usefull because filedescriptors stay across execevp so when the program 
 also learned that we can call wait(NULL) in the parent so that it will wait till its childs finished
 
 learned that using signal() system call allows to handle SIGINTS and other events
+
+pipe() returns a pair of file descriptors, one for the writer and one for reading. there is about 10k limit without reading it
+
+its used to communicate through forks()....
+
+
