@@ -19,4 +19,6 @@ pipe() returns a pair of file descriptors, one for the writer and one for readin
 
 its used to communicate through forks()....
 
+so I just learned about pipes. Pretty intesresting. Essentially its an object we create such as an int array that will be used as reference / pointer for the filedescriptors. for example, we create a new int [] and we dup it in the slot for the read which is 0 using dup() and close(). Then we can close our initial reference through int[] and keep only the reference in the slot table. That is needed for the kernel to know when to close a pipe or not. To avoid deadlocks. 
 
+also learned that the max memory in a pipe is roiughly 64kb on my system, hence I can launch both childs at once and one will read at the same time as the other writes, being more optimal. The reader only returns once it catches EOF, so when the writer stops writing to it.
