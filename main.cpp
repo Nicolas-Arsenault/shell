@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -11,18 +12,41 @@
 #include <string>
 #include <unistd.h>
 
-std::string EXIT_COMMAND = "exit";
-std::string BIN_PATH = "/bin/";
-std::string PWD_COMMAND = "pwd";
-std::string CD_COMMAND = "cd";
+const std::string EXIT_COMMAND = "exit";
+const std::string PWD_COMMAND = "pwd";
+const std::string CD_COMMAND = "cd";
+const char PIPE_OPERATOR = '|';
 
 int main(int argc, char *argv[]) {
   std::string line = "";
   while (line != EXIT_COMMAND) {
     readInput(line);
     trim(line);
+
+    if (line.find(PIPE_OPERATOR) != std::string::npos) {
+      auto twoCommands = split(line.data());
+      if (twoCommands.size() > 2) {
+        std::cout << "Only one pipe is allowed";
+        continue;
+      }
+      std::string cmd1{twoCommands[0]};
+      std::string cmd2{twoCommands[1]};
+      std::vector<std::string> words1;
+      std::vector<std::string> words2;
+      auto args1 = formatInput(cmd1, words1);
+      auto args2 = formatInput(cmd2, words2);
+
+      handlePipe(args1, args2);
+      continue;
+    }
     std::vector<std::string> words;
     auto args = formatInput(line, words);
+
+    if (args.size() <= 1) {
+      std::cout << "Empty line";
+      continue; // safegiard
+    }
+
     if (args[0] == CD_COMMAND) {
       execCd(args);
       continue;
@@ -46,17 +70,75 @@ int main(int argc, char *argv[]) {
       waitpid(pid, &status, 0);
     }
   }
-  // EXIT_COMMANDint rc = fork();
-  //  if (rc < 0) {
-  //   fprintf(stderr, "fork failed");
-  //  exit(1);
-  //} else if (rc == 0) { // we are in the child
-  // printf("Child (pid:%d)\n", (int)getpid());
-
-  // } else {
-  //  printf("parent of %d (pid: %d)\n", rc, (int)getpid());
-  // }
   return 0;
+}
+
+std::vector<std::string_view> split(char *s) {
+  std::string_view sv(s);
+  size_t start = 0;
+  size_t end = sv.find(PIPE_OPERATOR);
+  std::vector<std::string_view> tokens;
+
+  while (end != std::string_view::npos) {
+    tokens.push_back(sv.substr(start, end - start));
+    start = end + 1;
+    end = sv.find(PIPE_OPERATOR, start);
+  }
+  tokens.push_back(sv.substr(start));
+  return tokens;
+}
+
+void handlePipe(std::vector<char *> &args1, std::vector<char *> &args2) {
+  int pfd[2];
+  pipe(pfd);
+  // 1. exec first command and make sure the stdout goes to the pipe [1]
+  int pid = fork();
+  if (pid < 0) {
+    perror("fork failed");
+    exit(1);
+  }
+  if (pid == 0) {
+    // int child
+    close(1);
+    dup(pfd[1]);
+    close(pfd[1]);
+    close(pfd[0]);
+    execvp(args1[0], args1.data());
+    perror("execvp failed");
+    exit(1);
+  } else {
+    // in parent
+    int status1;
+    // done, launch other one
+    int pid2 = fork();
+    if (pid2 < 0) {
+      perror("fork failed");
+    } else if (pid2 == 0) {
+      close(0);
+      dup(pfd[0]);
+      close(pfd[0]);
+      close(pfd[1]);
+      execvp(args2[0], args2.data());
+      perror("execvp failed");
+      exit(1);
+    } else {
+      int status;
+      close(pfd[0]);
+      close(pfd[1]);
+      waitpid(pid2, &status, 0);
+      waitpid(pid, &status1, 0);
+    }
+  }
+}
+// to validate if this is ok
+bool containsPipe(char *args) {
+  for (size_t i = 0; i < strlen(args); i++) {
+    char c = args[i];
+    if (c == PIPE_OPERATOR) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void execCd(std::vector<char *> args) {
