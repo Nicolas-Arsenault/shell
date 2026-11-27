@@ -1,6 +1,9 @@
 # shell
 Educational purpose, to learn about threads, memory management and low level code as well as getting familiar with nvim.
 
+<img width="650" height="400" alt="image" src="https://github.com/user-attachments/assets/83e9596f-3d54-4723-8022-e7a646e28593" />
+
+
 ### Current features
 The current shell supports the following builtin commands:
 
