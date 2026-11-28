@@ -22,3 +22,17 @@ its used to communicate through forks()....
 so I just learned about pipes. Pretty intesresting. Essentially its an object we create such as an int array that will be used as reference / pointer for the filedescriptors. for example, we create a new int [] and we dup it in the slot for the read which is 0 using dup() and close(). Then we can close our initial reference through int[] and keep only the reference in the slot table. That is needed for the kernel to know when to close a pipe or not. To avoid deadlocks. 
 
 also learned that the max memory in a pipe is roiughly 64kb on my system, hence I can launch both childs at once and one will read at the same time as the other writes, being more optimal. The reader only returns once it catches EOF, so when the writer stops writing to it.
+
+ -- upd -- 
+
+So I have pretty much finished the v1 as of now, but one thing was bothering me. My code is not clean... so I went around and read the xv6 shell's code. 
+
+I think I approached the problem in a wrong angle, I should've spent some time making a very small design doc with the data, the states/steps and the contracts beforehand. It would have made refactoring easier etc.
+
+in c++ that means using structs to hold data etc... so in the next days Ill try to refactor the code
+
+== upd ==
+
+I experimented with the polymorhpism in c style. So you can use structs and reinterpret cast them. the memory is still there. so you jsut need to share the first fields of the parent, and you access it like a pointer. 
+
+One thing is that malloc doesnt call constructors so if you have a vector in a struc, it wont get init, crashing 

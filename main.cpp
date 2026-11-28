@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <algorithm>
 #include <cctype>
+#include <csignal>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
@@ -10,15 +11,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <sys/wait.h>
 #include <unistd.h>
 
 const std::string EXIT_COMMAND = "exit";
 const std::string PWD_COMMAND = "pwd";
 const std::string CD_COMMAND = "cd";
 const char PIPE_OPERATOR = '|';
+// volatile std::sig_atomic_t stop_requested = 0;
 
 int main(int argc, char *argv[]) {
   std::string line = "";
+  // std::signal(SIGINT, handle_sigint);
   while (line != EXIT_COMMAND) {
     readInput(line);
     trim(line);
