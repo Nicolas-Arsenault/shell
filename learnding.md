@@ -29,4 +29,10 @@ So I have pretty much finished the v1 as of now, but one thing was bothering me.
 
 I think I approached the problem in a wrong angle, I should've spent some time making a very small design doc with the data, the states/steps and the contracts beforehand. It would have made refactoring easier etc.
 
-in c++ that means using structs to hold data etc... so in the next days Ill try to refactor the code 
+in c++ that means using structs to hold data etc... so in the next days Ill try to refactor the code
+
+== upd ==
+
+I experimented with the polymorhpism in c style. So you can use structs and reinterpret cast them. the memory is still there. so you jsut need to share the first fields of the parent, and you access it like a pointer. 
+
+One thing is that malloc doesnt call constructors so if you have a vector in a struc, it wont get init, crashing 

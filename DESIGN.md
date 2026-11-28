@@ -59,20 +59,26 @@ a) based on the type
 
 
 ## Contracts
+int execvp(const char *file, char *const argv[]);
+pid_t fork(void);
 
-trim()
-buildCmd()
-cmdType()
-parseExec()
-parseBuiltin()
-parsePipe()
-parseArgs() * to validate
-split()
-runcmd()
-runExec()
-runBuiltin()
-runPipe()
+std::vector<char*> vector_c_str(std::vector<std::string> v){
 
+}
 
-
-
+```
+```
+string trim(string)
+*cmd buildCmd(string)
+int findCmdType(string)
+*cmd buildCmdExec(string)
+*cmd buildCmdBuiltin(string)
+*cmd buildCmdPipe(string) // will call buildcmd 2x on each side
+vector<string> parseArgs(string) // split & trim
+vector<string> split(char c)
+void runcmd(*cmd)
+void runExec(*cmd)
+void runBuiltin(*cmd)
+void runPipe(*cmd)
+```
+```
